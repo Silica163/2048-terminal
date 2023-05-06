@@ -47,8 +47,8 @@ int over(int (*st)[ROW][COL]){
 		for(int c = 0;c < COL;c++)
 			if(
 					(*st)[r][c] == 0 || 
-					(*st)[r][c] == (*st)[r][c+1]||
-					(*st)[r][c] == (*st)[r+1][c]
+					((*st)[r][c] == (*st)[r][c+1] && c < COL)||
+					((*st)[r][c] == (*st)[r+1][c] && r < ROW)
 			)
 				isOver = 0;
 	return isOver;
