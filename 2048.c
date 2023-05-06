@@ -29,21 +29,21 @@ int main(){
 		move(&game_state,dir,&isMove);
 		addEqual(&game_state,dir,&score,&isMove,&win);
 		move(&game_state,dir,&isMove);
-		if(!isMove)continue;
 
 		if(over(&game_state)){
 			printf("game over\n");
 			return 0;
-		} else if (win == 1){	
+		} 
+		if (win == 1){	
 			print_state(&game_state,&score);
 			printf("you win. Continue[1] , Quid[2] :");
 			int con;
 			scanf("%d",&con);
 			win = (con - 1) % 2;
 			if(win)return 0;
-		} else {
-			newTile(&game_state,score);
 		}
+		if(!isMove)continue;
+		newTile(&game_state,score);
 	}
 	return 0;
 }
@@ -74,7 +74,7 @@ void newTile(int (*st)[ROW][COL],int score){
 int over(int (*st)[ROW][COL]){
 	int isOver = 1;
 	for(int r = 0;r < ROW ;r++)
-		for(int c = 0;c < COL;c++)
+		for(int c = 0;c < COL ;c++)
 			if(
 					(*st)[r][c] == 0 || 
 					((*st)[r][c] == (*st)[r][c+1] && c < COL - 1)||
