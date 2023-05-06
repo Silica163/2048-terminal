@@ -7,6 +7,8 @@ void print_state(int (*state)[ROW][COL],int *score);
 void createMap(int (*state)[ROW][COL]);
 void move(int (*st)[ROW][COL],unsigned int dir);
 void addEqual(int (*st)[ROW][COL],unsigned int dir,int * score);
+void newTile(int (*st)[ROW][COL]);
+int over(int (*st)[ROW][COL]);
 
 int main(){
 	int game_state[ROW][COL];
@@ -17,13 +19,39 @@ int main(){
 		print_state(&game_state,&score);
 		printf("up[1] down[2] right[3] left[4] : ");
 		scanf("%u",&dir);
+
 		move(&game_state,dir);
 		print_state(&game_state,&score);
 		addEqual(&game_state,dir,&score);
 		print_state(&game_state,&score);
 		move(&game_state,dir);
+		if(over(&game_state)){
+			printf("game over\n");
+			return 0;
+		} else {
+			newTile(&game_state);
+		}
 	}
 	return 0;
+}
+
+void newTile(int (*st)[ROW][COL]){
+	for(int r = 0;r<ROW;r++)for(int c = 0;c < COL;c++)if((*st)[r][c] == 0){
+		if(r == c && c == 0)(*st)[r][c] = 2;
+	}
+}
+
+int over(int (*st)[ROW][COL]){
+	int isOver = 1;
+	for(int r = 0;r < ROW ;r++)
+		for(int c = 0;c < COL;c++)
+			if(
+					(*st)[r][c] == 0 || 
+					(*st)[r][c] == (*st)[r][c+1]||
+					(*st)[r][c] == (*st)[r+1][c]
+			)
+				isOver = 0;
+	return isOver;
 }
 
 void addEqual(int (*st)[ROW][COL],unsigned int dir,int *score){
