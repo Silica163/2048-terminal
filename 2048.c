@@ -1,44 +1,74 @@
 #include <stdio.h>
+#include <time.h>
+#include <stdlib.h>
 
 #define ROW 4
 #define COL 4
+#define WIN 2048
 
 void print_state(int (*state)[ROW][COL],int *score);
 void createMap(int (*state)[ROW][COL]);
-void move(int (*st)[ROW][COL],unsigned int dir);
-void addEqual(int (*st)[ROW][COL],unsigned int dir,int * score);
-void newTile(int (*st)[ROW][COL]);
+void move(int (*st)[ROW][COL],unsigned int dir,unsigned int *isMove);
+void addEqual(int (*st)[ROW][COL],unsigned int dir,int * score,int * isMove,int * win);
+void newTile(int (*st)[ROW][COL],int score);
 int over(int (*st)[ROW][COL]);
 
 int main(){
 	int game_state[ROW][COL];
 	createMap(&game_state);
 	int score = 0;
+	int win = 0;
 	while(1){
 		unsigned int dir;
+		unsigned int isMove = 0;
 		print_state(&game_state,&score);
 		printf("up[1] down[2] right[3] left[4] : ");
 		scanf("%u",&dir);
 
-		move(&game_state,dir);
-		print_state(&game_state,&score);
-		addEqual(&game_state,dir,&score);
-		print_state(&game_state,&score);
-		move(&game_state,dir);
+		if(dir > 4 || dir < 1)continue;
+		move(&game_state,dir,&isMove);
+		addEqual(&game_state,dir,&score,&isMove,&win);
+		move(&game_state,dir,&isMove);
+		if(!isMove)continue;
+
 		if(over(&game_state)){
 			printf("game over\n");
 			return 0;
+		} else if (win == 1){	
+			print_state(&game_state,&score);
+			printf("you win. Continue[1] , Quid[2] :");
+			int con;
+			scanf("%d",&con);
+			win = (con - 1) % 2;
+			if(win)return 0;
 		} else {
-			newTile(&game_state);
+			newTile(&game_state,score);
 		}
 	}
 	return 0;
 }
 
-void newTile(int (*st)[ROW][COL]){
+void newTile(int (*st)[ROW][COL],int score){
+
+	int zero = 0;
+	int pos[ROW*COL][2];
 	for(int r = 0;r<ROW;r++)for(int c = 0;c < COL;c++)if((*st)[r][c] == 0){
-		if(r == c && c == 0)(*st)[r][c] = 2;
+		pos[zero][0] = r;
+		pos[zero][1] = c;
+		zero += 1 ;
 	}
+
+	time_t sec;
+	time(&sec);
+	srand(score * sec);
+	int num1 = rand();
+	srand(sec * num1 * score);
+	int posIndex = rand() % zero ;
+	srand((sec * num1) ^ ( score * posIndex));
+	int tileValue = ((rand() % 2)+1) * 2;
+
+	(*st)[pos[posIndex][0]][pos[posIndex][1]] = 6 - tileValue;
+
 }
 
 int over(int (*st)[ROW][COL]){
@@ -47,14 +77,14 @@ int over(int (*st)[ROW][COL]){
 		for(int c = 0;c < COL;c++)
 			if(
 					(*st)[r][c] == 0 || 
-					((*st)[r][c] == (*st)[r][c+1] && c < COL)||
-					((*st)[r][c] == (*st)[r+1][c] && r < ROW)
+					((*st)[r][c] == (*st)[r][c+1] && c < COL - 1)||
+					((*st)[r][c] == (*st)[r+1][c] && r < ROW - 1)
 			)
 				isOver = 0;
 	return isOver;
 }
 
-void addEqual(int (*st)[ROW][COL],unsigned int dir,int *score){
+void addEqual(int (*st)[ROW][COL],unsigned int dir,int *score,int *isMove, int * win){
 
 	// up down right left
 	// 1    2    3    4
@@ -66,9 +96,9 @@ void addEqual(int (*st)[ROW][COL],unsigned int dir,int *score){
 	int left = dir == 4;
 
 	int cEdge1 = (COL - 1) * right;
-	int cEdge2 = (COL * left) - left + right ;
+	int cEdge2 = (COL * left) + right - left ;
 	int rEdge1 = (ROW - 1) * down;
-	int rEdge2 = (ROW * up) - up + down;
+	int rEdge2 = (ROW * up) + down - up;
 
 	// add horizon
 	for(int r = 0;r < ROW;r++){
@@ -82,6 +112,8 @@ void addEqual(int (*st)[ROW][COL],unsigned int dir,int *score){
 				(*st)[r][c] += (*st)[r][c+left-right];
 				(*st)[r][c+left-right] = 0;
 				*score += (*st)[r][c];
+				*isMove = 1;
+				if((*st)[r][c] == WIN)*win += 1;
 			}
 		}
 	}
@@ -98,6 +130,8 @@ void addEqual(int (*st)[ROW][COL],unsigned int dir,int *score){
 				(*st)[r][c] += (*st)[r+up-down][c];
 				(*st)[r+up-down][c] = 0;
 				*score += (*st)[r][c];
+				*isMove = 1;
+				if((*st)[r][c] == WIN)*win += 1;
 			}
 		}
 	}
@@ -106,6 +140,10 @@ void print_state(int (*state)[ROW][COL],int *score){
 	printf("score : %d \n+------+------+------+------+\n",*score);
 	for(int r = 0;r < ROW;r++){
 		for(int c = 0 ;c < COL ; c++){
+			if((*state)[r][c] == 0){
+				printf("|      ");
+				continue;
+			}
 			printf("|%6d",(*state)[r][c]);
 		}
 		printf("|\n");
@@ -115,12 +153,20 @@ void print_state(int (*state)[ROW][COL],int *score){
 
 
 void createMap(int (*state)[ROW][COL]){
+	time_t sec;
+	time(&sec);
+	srand(sec);
+	int r1 = rand() % ROW;
+	int r2 = rand() % ROW;
+	int c1 = rand() % COL;
+	int c2 = rand() % COL;
+
 	int map[ROW][COL];
 	for(int r =0;r < ROW;r++)
 		for(int c = 0;c < COL;c++)
 			map[r][c] = 0;
-	map[1][1] = 2;
-	map[2][2] = 2;
+	map[r1][c1] = (rand()%2 + 1) * 2;
+	map[r2][c2] = (rand()%2 + 1) * 2;
 	for(int r = 0;r < ROW;r++){
 		for( int c = 0;c < COL;c++ ){
 			(*state)[r][c] = map[r][c];
@@ -128,7 +174,7 @@ void createMap(int (*state)[ROW][COL]){
 	}
 }
 
-void move(int (*st)[ROW][COL],unsigned int dir){
+void move(int (*st)[ROW][COL],unsigned int dir,unsigned int * isMove){
 
 	// up down right left
 	// 1    2    3    4
@@ -159,6 +205,7 @@ void move(int (*st)[ROW][COL],unsigned int dir){
 			)if((*st)[r][c2] == 0){
 				(*st)[r][c2] = *now;
 				*now = 0;
+				*isMove = 1;
 				break;
 			};
 		}
@@ -179,6 +226,7 @@ void move(int (*st)[ROW][COL],unsigned int dir){
 			)if((*st)[r2][c] == 0){
 				(*st)[r2][c] = *now;
 				*now = 0;
+				*isMove = 1;
 				break;
 			};
 		}
