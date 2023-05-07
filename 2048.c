@@ -22,6 +22,12 @@ int main(){
 		unsigned int dir;
 		unsigned int isMove = 0;
 		print_state(&game_state,&score);
+
+		if(over(&game_state)){
+			printf("game over\n");
+			return 0;
+		} 
+
 		printf("up[1] down[2] right[3] left[4] : ");
 		scanf("%u",&dir);
 
@@ -30,10 +36,6 @@ int main(){
 		addEqual(&game_state,dir,&score,&isMove,&win);
 		move(&game_state,dir,&isMove);
 
-		if(over(&game_state)){
-			printf("game over\n");
-			return 0;
-		} 
 		if (win == 1){	
 			print_state(&game_state,&score);
 			printf("you win. Continue[1] , Quid[2] :");
