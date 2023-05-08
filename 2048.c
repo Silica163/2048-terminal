@@ -97,40 +97,29 @@ void addEqual(int (*st)[ROW][COL],unsigned int dir,int *score,int *isMove, int *
 	int right = dir == 3;
 	int left = dir == 4;
 
+	int vert = up||down;
+	int hor = left||right;
+
 	int cEdge1 = (COL - 1) * right;
 	int cEdge2 = (COL * left) + right - left ;
 	int rEdge1 = (ROW - 1) * down;
 	int rEdge2 = (ROW * up) + down - up;
 
 	// add horizon
-	for(int r = 0;r < ROW;r++){
+	for(
+		int r = rEdge1*vert;
+		(r < ROW) * hor || ((r < rEdge2 && up) || (r >= rEdge2 && down)) * vert;
+		r += (up-down) + hor
+	){
 		for(
-			int c = cEdge1;
-			(c < cEdge2 && left) || (c >= cEdge2 && right);
-			c += left-right
+			int c = cEdge1*hor;
+			((c < cEdge2 && left) || (c >= cEdge2 && right))*hor || (c < COL)*vert; 
+			c += (left-right) + vert
 		){
 			if((*st)[r][c] == 0)continue;
-			if((*st)[r][c] == (*st)[r][c+left-right]){
-				(*st)[r][c] += (*st)[r][c+left-right];
-				(*st)[r][c+left-right] = 0;
-				*score += (*st)[r][c];
-				*isMove = 1;
-				if((*st)[r][c] == WIN)*win += 1;
-			}
-		}
-	}
-
-	// add vertical
-	for(int c = 0;c < COL; c++){
-		for(
-			int r = rEdge1;
-			(r < rEdge2 && up) || (r >= rEdge2 && down);
-			r += up - down
-		){
-			if((*st)[r][c] == 0)continue;
-			if((*st)[r][c] == (*st)[r+up-down][c]){
-				(*st)[r][c] += (*st)[r+up-down][c];
-				(*st)[r+up-down][c] = 0;
+			if((*st)[r][c] == (*st)[r+(up-down)*vert][c+(left-right)*hor]){
+				(*st)[r][c] += (*st)[r+(up-down)*vert][c+(left-right)*hor];
+				(*st)[r+(up-down)*vert][c+(left-right)*hor] = 0;
 				*score += (*st)[r][c];
 				*isMove = 1;
 				if((*st)[r][c] == WIN)*win += 1;
@@ -138,6 +127,7 @@ void addEqual(int (*st)[ROW][COL],unsigned int dir,int *score,int *isMove, int *
 		}
 	}
 }
+
 void print_state(int (*state)[ROW][COL],int *score){
 	printf("score : %d \n+------+------+------+------+\n",*score);
 	for(int r = 0;r < ROW;r++){
@@ -209,26 +199,4 @@ void move(int (*st)[ROW][COL],unsigned int dir,unsigned int * isMove){
 			};
 		}
 	}
-
-	// move vertical
-	/*for(int c = 0; c < COL;c++){
-		for(
-			int r = rEdge1 ;
-			( r < rEdge2 && up) || (r >= rEdge2 && down);
-			r+= ( -1 * down) + ( 1 * up )
-		){
-			int *now = &(*st)[r][c];
-			if(*now != 0 && r != rEdge1)for(
-				int r2 = rEdge1;
-				(r2 * up) + (r * down) < (r2 * down) + (r * up);
-				r2 += (-1 * down) + (1 * up)
-			)if((*st)[r2][c] == 0){
-				(*st)[r2][c] = *now;
-				*now = 0;
-				*isMove = 1;
-				break;
-			};
-		}
-	}*/
 }
-
