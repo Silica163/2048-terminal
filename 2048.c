@@ -155,25 +155,12 @@ void print_state(int (*state)[ROW][COL],int *score){
 
 
 void createMap(int (*state)[ROW][COL]){
-	time_t sec;
-	time(&sec);
-	srand(sec);
-	int r1 = rand() % ROW;
-	int r2 = rand() % ROW;
-	int c1 = rand() % COL;
-	int c2 = rand() % COL;
-
-	int map[ROW][COL];
 	for(int r =0;r < ROW;r++)
 		for(int c = 0;c < COL;c++)
-			map[r][c] = 0;
-	map[r1][c1] = (rand()%2 + 1) * 2;
-	map[r2][c2] = (rand()%2 + 1) * 2;
-	for(int r = 0;r < ROW;r++){
-		for( int c = 0;c < COL;c++ ){
-			(*state)[r][c] = map[r][c];
-		}
-	}
+			(*state)[r][c] = 0;
+
+	newTile(state,0);
+	newTile(state,3);
 }
 
 void move(int (*st)[ROW][COL],unsigned int dir,unsigned int * isMove){
@@ -187,25 +174,35 @@ void move(int (*st)[ROW][COL],unsigned int dir,unsigned int * isMove){
 	int right = dir == 3;
 	int left = dir == 4;
 
+	int hor = left||right;
+	int vert = up||down;
+
 	int cEdge1 = (COL-1) * right;
 	int cEdge2 = COL * left ;
 	int rEdge1 = (ROW - 1) * down;
 	int rEdge2 = ROW * up;
 
 	// move horizon
-	for(int r = 0 ; r < ROW ;r++){
+	for(
+		int r = (rEdge1*vert); 
+		(r < ROW)*hor || (vert * (r < rEdge2 && up)||(r >= rEdge2 && down));
+		r+= (up-down)*vert + hor
+	){
 		for(
-			int c = cEdge1;
-			( c < cEdge2 && left) || (c >= cEdge2 && right);
-			c += (-1 * right) + (1 * left)
+			int c = cEdge1*hor;
+			(( c < cEdge2 && left) || (c >= cEdge2 && right)) || (c < COL) * vert;
+			c += (left-right)*hor + vert
 		){
 			int *now = &(*st)[r][c];
-			if(*now != 0 && c != cEdge1 )for(
-				int c2 = cEdge1 ;
-				(c2 *left) + (c * right) < (c2 * right) + (c * left);
-				c2 += (-1 * right) + (1 * left) 
-			)if((*st)[r][c2] == 0){
-				(*st)[r][c2] = *now;
+			if(
+				*now != 0 && 
+				((c != cEdge1 && hor) || (r != rEdge1 && vert))
+			)for(
+				int i = cEdge1*hor + rEdge1*vert ;
+				(i * left) + (c * right) + (i * up) + (r * down) < (i * right) + (c * left) + (i * down) + (r * up);
+				i += (left-right) * hor + (up - down)*vert
+			)if((*st)[i*vert + r*hor][i*hor + c*vert] == 0){
+				(*st)[i*vert + r*hor][i*hor + c*vert] = *now;
 				*now = 0;
 				*isMove = 1;
 				break;
@@ -214,7 +211,7 @@ void move(int (*st)[ROW][COL],unsigned int dir,unsigned int * isMove){
 	}
 
 	// move vertical
-	for(int c = 0; c < COL;c++){
+	/*for(int c = 0; c < COL;c++){
 		for(
 			int r = rEdge1 ;
 			( r < rEdge2 && up) || (r >= rEdge2 && down);
@@ -232,6 +229,6 @@ void move(int (*st)[ROW][COL],unsigned int dir,unsigned int * isMove){
 				break;
 			};
 		}
-	}
+	}*/
 }
 
