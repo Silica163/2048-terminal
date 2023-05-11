@@ -1,0 +1,3 @@
+#!/usr/bin/sh
+time gcc -o 2048 2048.c
+time x86_64-w64-mingw32-gcc 2048.c -o 2048.exe

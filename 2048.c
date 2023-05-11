@@ -24,8 +24,17 @@ int main(){
 		print_state(&game_state,&score);
 
 		if(over(&game_state)){
-			printf("game over\n");
-			return 0;
+			int cont;
+			printf("game over. [1]Quit, [2]Retry? :");
+			scanf("%d",&cont);
+			cont--;
+			if(cont%2){
+				createMap(&game_state);
+				win = score = 0;
+				continue;
+			}else{
+				return 0;
+			}
 		} 
 
 		printf("up[1] down[2] right[3] left[4] : ");
@@ -38,11 +47,12 @@ int main(){
 
 		if (win == 1){	
 			print_state(&game_state,&score);
-			printf("you win. Continue[1] , Quid[2] :");
+			printf("you win. Continue[1], Quit[2]? :");
 			int con;
 			scanf("%d",&con);
 			win = (con - 1) % 2;
 			if(win)return 0;
+			win += 2;
 		}
 		if(!isMove)continue;
 		newTile(&game_state,score);
@@ -62,9 +72,8 @@ void newTile(int (*st)[ROW][COL],int score){
 
 	time_t sec;
 	time(&sec);
-	srand(score * sec);
 	int num1 = rand();
-	srand(sec * num1 * score);
+	srand(sec * num1 + score);
 	int posIndex = rand() % zero ;
 	srand((sec * num1) ^ ( score * posIndex));
 	int tileValue = ((rand() % 2)+1) * 2;
@@ -90,7 +99,6 @@ void addEqual(int (*st)[ROW][COL],unsigned int dir,int *score,int *isMove, int *
 
 	// up down right left
 	// 1    2    3    4
-	//move left
 
 	int up = dir ==1;
 	int down = dir == 2;
@@ -105,7 +113,6 @@ void addEqual(int (*st)[ROW][COL],unsigned int dir,int *score,int *isMove, int *
 	int rEdge1 = (ROW - 1) * down;
 	int rEdge2 = (ROW * up) + down - up;
 
-	// add horizon
 	for(
 		int r = rEdge1*vert;
 		(r < ROW) * hor || ((r < rEdge2 && up) || (r >= rEdge2 && down)) * vert;
@@ -129,18 +136,43 @@ void addEqual(int (*st)[ROW][COL],unsigned int dir,int *score,int *isMove, int *
 }
 
 void print_state(int (*state)[ROW][COL],int *score){
-	printf("score : %d \n+------+------+------+------+\n",*score);
+	printf("score : %d \n",*score);
 	for(int r = 0;r < ROW;r++){
-		for(int c = 0 ;c < COL ; c++){
-			if((*state)[r][c] == 0){
-				printf("|      ");
+
+		if(r > 0 ) printf("├");
+		if(r == 0) printf("┌");
+		for(int c = 0;c<COL;c++){
+			printf("──────");
+			if(c < COL-1 && r == 0){
+				printf("┬");
 				continue;
 			}
-			printf("|%6d",(*state)[r][c]);
+			if(c < COL - 1 ){
+				printf("┼");
+				continue;
+			}
 		}
-		printf("|\n");
-		printf("+------+------+------+------+\n");
+		if(r == 0) printf("┐\n");
+		if(r > 0 ) printf("┤\n");
+
+		for(int c = 0 ;c < COL ; c++){
+			if((*state)[r][c] == 0){
+				printf("│      ");
+				continue;
+			}
+			printf("│%6d",(*state)[r][c]);
+		}
+		printf("│\n");
 	}
+
+	printf("└");
+	for(int c = 0;c<COL;c++){
+		printf("──────");
+		if(c < COL-1){
+			printf("┴");
+		}
+	}
+	printf("┘\n");
 }
 
 
@@ -149,15 +181,14 @@ void createMap(int (*state)[ROW][COL]){
 		for(int c = 0;c < COL;c++)
 			(*state)[r][c] = 0;
 
-	newTile(state,0);
 	newTile(state,3);
+	newTile(state,7);
 }
 
 void move(int (*st)[ROW][COL],unsigned int dir,unsigned int * isMove){
 
 	// up down right left
 	// 1    2    3    4
-	//move left
 
 	int up = dir ==1;
 	int down = dir == 2;
@@ -172,7 +203,6 @@ void move(int (*st)[ROW][COL],unsigned int dir,unsigned int * isMove){
 	int rEdge1 = (ROW - 1) * down;
 	int rEdge2 = ROW * up;
 
-	// move horizon
 	for(
 		int r = (rEdge1*vert); 
 		(r < ROW)*hor || (vert * (r < rEdge2 && up)||(r >= rEdge2 && down));
