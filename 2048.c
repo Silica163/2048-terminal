@@ -9,7 +9,7 @@
 void print_state(int (*state)[ROW][COL],int *score);
 void createMap(int (*state)[ROW][COL]);
 void move(int (*st)[ROW][COL],unsigned int dir,unsigned int *isMove);
-void addEqual(int (*st)[ROW][COL],unsigned int dir,int * score,int * isMove,int * win);
+void addEqual(int (*st)[ROW][COL],unsigned int dir,int * score,unsigned int * isMove,int * win);
 void newTile(int (*st)[ROW][COL],int score);
 int over(int (*st)[ROW][COL]);
 
@@ -95,7 +95,7 @@ int over(int (*st)[ROW][COL]){
 	return isOver;
 }
 
-void addEqual(int (*st)[ROW][COL],unsigned int dir,int *score,int *isMove, int * win){
+void addEqual(int (*st)[ROW][COL],unsigned int dir,int *score,unsigned int *isMove, int * win){
 
 	// up down right left
 	// 1    2    3    4
@@ -136,43 +136,58 @@ void addEqual(int (*st)[ROW][COL],unsigned int dir,int *score,int *isMove, int *
 }
 
 void print_state(int (*state)[ROW][COL],int *score){
+
+#ifdef __unix__
+	char bars[][4] = {
+		"┌","┬","┐",
+		"├","┼","┤",
+		"└","┴","┘",
+		"─","│"
+	};
+#else
+	char bars[][4] = {
+		"+","+","+",
+		"+","+","+",
+		"+","+","+",
+		"-","|"
+	};
+#endif
+
 	printf("score : %d \n",*score);
 	for(int r = 0;r < ROW;r++){
 
-		if(r > 0 ) printf("├");
-		if(r == 0) printf("┌");
+		if(r > 0 ) printf("%s",bars[3]);
+		if(r == 0) printf("%s",bars[0]);
 		for(int c = 0;c<COL;c++){
-			printf("──────");
+			for(int i = 0;i<6;i++)printf("%s",bars[9]);
 			if(c < COL-1 && r == 0){
-				printf("┬");
+				printf("%s",bars[1]);
 				continue;
 			}
 			if(c < COL - 1 ){
-				printf("┼");
+				printf("%s",bars[4]);
 				continue;
 			}
 		}
-		if(r == 0) printf("┐\n");
-		if(r > 0 ) printf("┤\n");
+		if(r == 0) printf("%s\n",bars[2]);
+		if(r > 0 ) printf("%s\n",bars[5]);
 
 		for(int c = 0 ;c < COL ; c++){
 			if((*state)[r][c] == 0){
-				printf("│      ");
+				printf("%s      ",bars[10]);
 				continue;
 			}
-			printf("│%6d",(*state)[r][c]);
+			printf("%s%6d",bars[10],(*state)[r][c]);
 		}
-		printf("│\n");
+		printf("%s\n",bars[10]);
 	}
 
-	printf("└");
+	printf("%s",bars[6]);
 	for(int c = 0;c<COL;c++){
-		printf("──────");
-		if(c < COL-1){
-			printf("┴");
-		}
+		for(int i = 0;i<6;i++)printf("%s",bars[9]);
+		if(c < COL -1 )printf("%s",bars[7]);
 	}
-	printf("┘\n");
+	printf("%s\n",bars[8]);
 }
 
 
