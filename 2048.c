@@ -137,21 +137,12 @@ void addEqual(int (*st)[ROW][COL],unsigned int dir,int *score,unsigned int *isMo
 
 void print_state(int (*state)[ROW][COL],int *score){
 
-#ifdef __unix__
 	char bars[][4] = {
 		"┌","┬","┐",
 		"├","┼","┤",
 		"└","┴","┘",
 		"─","│"
 	};
-#else
-	char bars[][2] = {
-		"\xda","\xc2","\xbf",
-		"\xc3","\xc5","\xb4",
-		"\xc0","\xc1","\xd9",
-		"\xc4","\xb3"
-	};
-#endif
 
 	printf("score : %d \n",*score);
 	for(int r = 0;r < ROW;r++){
