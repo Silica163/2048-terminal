@@ -145,11 +145,11 @@ void print_state(int (*state)[ROW][COL],int *score){
 		"─","│"
 	};
 #else
-	char bars[][4] = {
-		"+","+","+",
-		"+","+","+",
-		"+","+","+",
-		"-","|"
+	char bars[][2] = {
+		"\xda","\xc2","\xbf",
+		"\xc3","\xc5","\xb4",
+		"\xc0","\xc1","\xd9",
+		"\xc4","\xb3"
 	};
 #endif
 
