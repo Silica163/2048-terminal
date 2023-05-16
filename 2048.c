@@ -12,8 +12,10 @@ void move(int (*st)[ROW][COL],unsigned int dir,unsigned int *isMove);
 void addEqual(int (*st)[ROW][COL],unsigned int dir,int * score,unsigned int * isMove,int * win);
 void newTile(int (*st)[ROW][COL],int score);
 int over(int (*st)[ROW][COL]);
+void startMsg();
 
 int main(){
+	startMsg();
 	int game_state[ROW][COL];
 	createMap(&game_state);
 	int score = 0;
@@ -37,7 +39,7 @@ int main(){
 			}
 		} 
 
-		printf("up[1] down[2] right[3] left[4] : ");
+		printf("[1]Up [2]Down [3]Right [4]Left : ");
 		scanf("%u",&dir);
 
 		if(dir > 4 || dir < 1)continue;
@@ -60,6 +62,21 @@ int main(){
 	return 0;
 }
 
+void startMsg(){
+	printf("\n");
+	printf(" __   __   _   __\n");
+	printf(" __) | /| /_| (__)\n");
+	printf("(__  |/_|   | (__)\n\n");
+
+	printf("Enter command to fight,\n");
+	printf("Move tiles up down left and right,\n");
+	printf("Merge and double when it's neighbor is the same,\n");
+	printf("Spawn new one and move again.\n");
+	printf("After just one tile reach 2048, you win.\n");
+	printf("But when its can't move anymore it's fin.\n\n");
+
+	printf("view source https://github.com/silica163/2048-terminal\n");
+}
 void newTile(int (*st)[ROW][COL],int score){
 
 	int zero = 0;
@@ -144,7 +161,7 @@ void print_state(int (*state)[ROW][COL],int *score){
 		"─","│"
 	};
 
-	printf("score : %d \n",*score);
+	printf("\nscore : %d \n",*score);
 	for(int r = 0;r < ROW;r++){
 
 		if(r > 0 ) printf("%s",bars[3]);
